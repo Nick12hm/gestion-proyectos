@@ -40,19 +40,38 @@ export const getData = async (complemento: string) => {
     return response.json();
 };
 
-// export const getUsers = async () => {
-//     const token = getAuthToken();
-//     const response = await fetch(`${API_URL}/users`, {
-//         method: 'GET',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'Authorization': `Bearer ${token}`,
-//         },
-//     });
+export const putData = async (url: string, data: object) => {
+    const token = getAuthToken();
+    const response = await fetch(`${API_URL}${url}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+    });
 
-//     if (!response.ok) {
-//         throw new Error('Error al obtener los usuarios');
-//     }
+    if (!response.ok) {
+        throw new Error('Error al actualizar los datos');
+    }
 
-//     return response.json();
-// };
+    return response.json();
+};
+
+export const postData = async (url: string, data: object) => {
+    const token = getAuthToken();
+    const response = await fetch(`${API_URL}${url}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+        throw new Error('Error al registrar los datos');
+    }
+
+    return response.json();
+};

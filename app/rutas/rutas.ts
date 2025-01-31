@@ -6,6 +6,8 @@ export const RUTAS = {
     proyectos: {
         Filter: '/proyectos/filter',
         getAll: '/proyectos',
+        create: '/proyectos',
+        update: '/proyectos/',
     },
     usuarios: {
         getAll: '/usuarios',

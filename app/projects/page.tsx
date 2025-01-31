@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState  } from 'react';
 import { useForm } from 'react-hook-form';
-import { getData } from '@/app/services/apiService';
+import { getData, putData, postData } from '@/app/services/apiService';
 import { RUTAS } from "../rutas/rutas";
 import  Layout  from "@/app/components/layout";
 
@@ -19,6 +19,18 @@ interface User {
   id: number;
   nombre: string;
 }
+
+interface ProjectFormData {
+  nombre: string;
+  descripcion: string;
+  administrador_id: string | number | undefined; 
+  lectorId: string | number | undefined ;
+}
+
+type ProjectCardProps = {
+  project: Project;
+  onEdit: (project: Project) => void;
+};
 
 function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -54,7 +66,30 @@ function Projects() {
     setIsModalOpen(false);
     setCurrentProject(null);
   };
-   
+  
+  const handleSaveProject = async (data: ProjectFormData) => {
+    try {
+      const {lectorId, ...dataSend}  = data;
+      if (currentProject) {
+        // Actualizar proyecto existente
+        await putData(`${rutas.proyectos.update}${currentProject.id}`, dataSend);
+      } else {
+        // Crear nuevo proyecto
+        await postData(rutas.proyectos.create, dataSend);
+      }
+
+      if(lectorId){
+        console.log('se registra nuevo dato en asociasión de usuarios - proyectos');
+                
+      }
+      // Refrescar la lista de proyectos
+      const updatedProjects = await getData(rutas.proyectos.getAll);
+      setProjects(updatedProjects);
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error saving project', error);
+    }
+  };
   return (
     <Layout>
        <div className="flex justify-between items-center mb-4">
@@ -74,15 +109,12 @@ function Projects() {
         </div>
       </div>
       {isModalOpen && (
-        <ProjectModal project={currentProject} onClose={handleCloseModal} />
+        <ProjectModal project={currentProject} onClose={handleCloseModal} onSave={handleSaveProject} />
       )}
-    </Layout>  )
+    </Layout>  
+  );
 } 
 
-type ProjectCardProps = {
-  project: Project;
-  onEdit: (project: Project) => void;
-};
 
 function ProjectCard({ project, onEdit }: ProjectCardProps) {
   const handleEdit = () => {
@@ -118,12 +150,13 @@ function ProjectCard({ project, onEdit }: ProjectCardProps) {
   );
 }
 
-function ProjectModal({ project, onClose }: { project: Project | null; onClose: () => void }) {
+
+function ProjectModal({ project, onClose, onSave }: { project: Project | null; onClose: () => void; onSave: (data:ProjectFormData ) => void }) {
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
       nombre: project ? project.nombre : '',
       descripcion: project ? project.descripcion : '',
-      adminId: project ? project.administrador_id : '',
+      administrador_id: project ? project.administrador_id : '',
       lectorId: project ? project.lector_id : '',
     },
   });
@@ -155,20 +188,19 @@ function ProjectModal({ project, onClose }: { project: Project | null; onClose: 
       reset({
         nombre: project.nombre,
         descripcion: project.descripcion,
-        adminId: project.administrador_id,
+        administrador_id: project.administrador_id,
         lectorId: project.lector_id,
       });
     }
   }, [project, reset, isLoading]);
 
-  const onSubmit = (data: { nombre: string; descripcion: string; adminId: number; lectorId: number }) => {
-    // Lógica para crear o actualizar el proyecto
-    console.log('Guardar proyecto:', data);
-    onClose();
+  const onSubmit = (data: ProjectFormData) => {
+
+    onSave(data);
   };
 
   if (isLoading) {
-    return <div>Cargando...</div>; // Muestra un mensaje de carga mientras se obtienen los datos
+    return <div>Cargando...</div>; 
   }
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
@@ -191,8 +223,8 @@ function ProjectModal({ project, onClose }: { project: Project | null; onClose: 
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Administrador</label>
-            <select {...register('adminId', { required: true })} className="w-full p-2 border rounded">
+            <label className="block text-gray-700">Administrador *</label>
+            <select {...register('administrador_id', { required: true })} className="w-full p-2 border rounded">
               <option value="">Selecciona un administrador</option>
               {admins.map((admin) => (
                 <option key={admin.id} value={admin.id}>{admin.nombre}</option>
@@ -201,7 +233,7 @@ function ProjectModal({ project, onClose }: { project: Project | null; onClose: 
           </div>
           <div className="mb-4">
             <label className="block text-gray-700">Colaboradores</label>
-            <select {...register('lectorId', { required: true })} className="w-full p-2 border rounded">
+            <select {...register('lectorId')} className="w-full p-2 border rounded">
               <option value="">Selecciona un lector</option>
               {lectores.map((lector) => (
                 <option key={lector.id} value={lector.id}>{lector.nombre}</option>
