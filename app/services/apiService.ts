@@ -75,3 +75,20 @@ export const postData = async (url: string, data: object) => {
 
     return response.json();
 };
+
+export const deleteData = async (url: string) => {
+    const token = getAuthToken();
+    const response = await fetch(`${API_URL}${url}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error('Error al eliminar los datos');
+    }
+
+    return response.json();
+};

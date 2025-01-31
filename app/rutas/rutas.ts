@@ -8,6 +8,7 @@ export const RUTAS = {
         getAll: '/proyectos',
         create: '/proyectos',
         update: '/proyectos/',
+        delete: '/proyectos/',
     },
     usuarios: {
         getAll: '/usuarios',

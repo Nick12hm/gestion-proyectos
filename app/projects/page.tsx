@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState  } from 'react';
 import { useForm } from 'react-hook-form';
-import { getData, putData, postData } from '@/app/services/apiService';
+import { getData, putData, postData, deleteData } from '@/app/services/apiService';
 import { RUTAS } from "../rutas/rutas";
 import  Layout  from "@/app/components/layout";
 
@@ -30,6 +30,7 @@ interface ProjectFormData {
 type ProjectCardProps = {
   project: Project;
   onEdit: (project: Project) => void;
+  onDelete: (projectId: number) => void;
 };
 
 function Projects() {
@@ -90,6 +91,18 @@ function Projects() {
       console.error('Error saving project', error);
     }
   };
+
+  const handleDeleteProject = async (projectId: number) => {
+    try {
+      await deleteData(`${rutas.proyectos.delete}${projectId}`);
+      // Refrescar la lista de proyectos
+      const updatedProjects = await getData(rutas.proyectos.getAll);
+      setProjects(updatedProjects);
+    } catch (error) {
+      console.error('Error deleting project', error);
+    }
+  };
+
   return (
     <Layout>
        <div className="flex justify-between items-center mb-4">
@@ -104,7 +117,7 @@ function Projects() {
       <div className="overflow-auto max-h-[80vh]">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} onEdit={handleEdit} />
+            <ProjectCard key={project.id} project={project} onEdit={handleEdit} onDelete = {handleDeleteProject}/>
           ))}
         </div>
       </div>
@@ -115,25 +128,23 @@ function Projects() {
   );
 } 
 
-
-function ProjectCard({ project, onEdit }: ProjectCardProps) {
+function ProjectCard({ project, onEdit, onDelete  }: ProjectCardProps) {
   const handleEdit = () => {
     onEdit(project);
   };
 
   const handleDelete = () => {
-    // Lógica para eliminar el proyecto
-    console.log('Eliminar proyecto:', project.id);
+    onDelete(project.id);
   };
 
   return (
-    <div className="border p-4 rounded shadow  bg-gray-200">
+    <div className="border p-4 rounded shadow bg-gray-200">
       <h2 className="text-xl font-bold">{project.nombre}</h2>
       <p>{project.descripcion}</p>
-      <p className="text-sm  text-gray-500">Fecha de creación: {new Date(project.fecha_creacion).toLocaleDateString()}</p>
+      <p className="text-sm text-gray-500">Fecha de creación: {new Date(project.fecha_creacion).toLocaleDateString()}</p>
       <p className="text-sm text-gray-500">Administrador: {project.adminNombre}</p>
       <div className="mt-4 flex justify-between">
-      <button
+        <button
           onClick={handleEdit}
           className="bg-blue-500 text-white px-4 py-2 rounded"
         >
