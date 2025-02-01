@@ -8,10 +8,13 @@ import Cookies from 'js-cookie';
 function LoginPage() {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const router = useRouter();
+    /**
+     * Esta función permite validar credenciales y guardar token para protección de rutas.
+     */
     const onSubmit = handleSubmit  (async data => {
         try {
             const response = await loginUser(data.email, data.password);
-            Cookies.set('auth-token', response.access_token); // Guardar el token en cookies
+            Cookies.set('auth-token', response.access_token); 
             router.push('../dashboard');
 
         } catch (error) {

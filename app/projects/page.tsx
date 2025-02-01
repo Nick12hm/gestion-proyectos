@@ -5,6 +5,10 @@ import { getData, putData, postData, deleteData } from '@/app/services/apiServic
 import { RUTAS } from "../rutas/rutas";
 import  Layout  from "@/app/components/layout";
 
+
+/**
+ * Interfaces de datos manejados en la aplicación
+ */
 interface Project {
   id: number;
   nombre: string;
@@ -33,6 +37,9 @@ type ProjectCardProps = {
   onDelete: (projectId: number) => void;
 };
 
+/**
+ * Esta función permite consultar la data y responder a las funcionalidades del crud de proyectos
+ */
 function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -128,6 +135,12 @@ function Projects() {
   );
 } 
 
+/**
+ * Esta función crea Cards dinámicamente para mostrar la información de los proyectos
+ * @param onEdit Permite abrir modal de registro con Id de dato 
+ * @param onDelete Borrar información
+ * @returns Vialización de proyectos
+ */
 function ProjectCard({ project, onEdit, onDelete  }: ProjectCardProps) {
   const handleEdit = () => {
     onEdit(project);
@@ -161,6 +174,13 @@ function ProjectCard({ project, onEdit, onDelete  }: ProjectCardProps) {
   );
 }
 
+/**
+ * Crea un modal de formaralio para editar o eliminar información
+ * @param project Información con la que se  va a trabajar
+ * @param onClose Función para cerrar modal
+ * @param onSave Función para guardar información y emitir 
+ * @returns onSave Con data registrada o editada
+ */
 
 function ProjectModal({ project, onClose, onSave }: { project: Project | null; onClose: () => void; onSave: (data:ProjectFormData ) => void }) {
   const { register, handleSubmit, reset } = useForm({

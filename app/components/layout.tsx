@@ -5,7 +5,11 @@ interface LayoutProps {
     children: ReactNode;
   }
 
-  const Layout = ({ children }: LayoutProps) => {
+/**
+ * Se usa este layout para manejar el Nav dinámico
+ * @returns menu 
+ */
+const Layout = ({ children }: LayoutProps) => {
     return (
     <div className="flex">
       <Sidebar />
